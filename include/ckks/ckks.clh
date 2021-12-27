@@ -1,0 +1,54 @@
+#ifndef CKKS_CLH_
+#define CKKS_CLH_
+
+#include "clmp/clmp.clh"
+
+typedef double2 complex_double_t;
+
+complex_double_t mult_complex_double(complex_double_t _lhs, complex_double_t _rhs);
+
+
+typedef struct _uint128_t {
+    clmp_uint64 upper;
+    clmp_uint64 lower;
+} uint128_t;
+
+clmp_uint64 to_uint64_uint128(const uint128_t _rhs);
+uint128_t to_uint128_uint64(const clmp_uint64 _rhs);
+uint128_t shift_right_uint128_with_uint64(const uint128_t _lhs, const clmp_uint64 _rhs);
+uint128_t add_uint128_with_uint128(const uint128_t _lhs, const uint128_t _rhs);
+uint128_t sub_uint128_with_uint128(const uint128_t _lhs, const uint128_t _rhs);
+uint128_t mult_uint128_with_uint128(const uint128_t _lhs, const uint128_t _rhs);
+
+
+void scale_up_to_clmpz(clmpz_ptr _res, const double _val, const long _log_p);
+double scale_down_to_double(clmpz_srcptr _val, const long _log_p);
+
+void permute_array(__global complex_double_t *_vals, const long _len);
+
+void fft_special(__global complex_double_t *_vals, const long _len, const long _M, __global const long *_rot_group, __global const complex_double_t *_ksi_pows);
+
+void fft_special_inv(__global complex_double_t *_vals, const long _len, const long _M, __global const long *_rot_group, __global const complex_double_t *_ksi_pows);
+
+__kernel void encode(clmpz_t *_res, __global complex_double_t *_vals, const long _len, const long _log_p, const long _Nh, const long _M, __global const long *_rot_group, __global const complex_double_t *_ksi_pows);
+
+clmp_uint64 mul_mod_barrett(const clmp_uint64 _rhs, const clmp_uint64 _lhs, const clmp_uint64 _p, const clmp_uint64 _p_r, const long _k_bar_d);
+void butt(__global clmp_uint64 *_lhs, __global clmp_uint64 *_rhs, const clmp_uint64 _W, const clmp_uint64 _p, const clmp_uint64 _p_inv);
+void ibutt(__global clmp_uint64 *_lhs, __global clmp_uint64 *_rhs, const clmp_uint64 _W, const clmp_uint64 _p, const clmp_uint64 _p_inv);
+void idivN(__global clmp_uint64 *_val, const clmp_uint64 _scaled_N_inv, const clmp_uint64 _p, const clmp_uint64 _p_inv);
+
+void NTT(__global clmp_uint64 *_vals, const clmp_uint64 _p, const clmp_uint64 _p_inv, __global clmp_uint64 *_scaled_root_pows, const long _N, const long _log_N);
+void iNTT(__global clmp_uint64 *_vals, const clmp_uint64 _p, const clmp_uint64 _p_inv, __global clmp_uint64 *_scaled_root_inv_pows, const clmp_uint64 _scaled_N_inv, const long _N);
+
+__kernel void crt_decomposition(__global clmp_uint64 *_res, clmpz_t *_vals, const long _np, const clmp_uint64 _log_N, const clmp_uint64 _N, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_r_vec, clmp_uint64 _k_bar_d);
+__kernel void crt_ntt(__global clmp_uint64 *_res, const long _log_N, const long _N, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_inv_vec, const long _k_bar_d, __global clmp_uint64 *_scaled_root_pows);
+
+__kernel void mult_decomposition(__global clmp_uint64 *_r_lhs, __global clmp_uint64 *_r_rhs, clmpz_t *_lhs, clmpz_t *_rhs, const clmp_uint64 _log_N, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_r_vec, clmp_uint64 _k_bar_d);
+__kernel void reconstruct(clmpz_t *_res, __global clmp_uint64 *_vals, const long _np, clmpz_srcptr _q, const long _nprimes, clmpz_t *_p_hat, __global clmp_uint64 *_p_hat_inv_mod_p, clmpz_t *_p_prod, clmpz_t * _p_prod_h, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_r_vec, const long _k_bar_d, const long _N, const long _log_N);
+
+__kernel void ctx_mult(__global clmp_uint64 *_res, __global clmp_uint64 *_lhs, __global clmp_uint64 *_rhs, const long _log_N, const long _N, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_inv_vec, __global clmp_uint64 *_p_r_vec, const long _k_bar_d, __global clmp_uint64 *_scaled_root_pows, __global clmp_uint64 *_scaled_root_inv_pows, __global clmp_uint64 *_scaled_N_inv);
+
+/*
+__kernel void reconstruct(clmpz_t *_res, __global clmp_uint64 *_vals, const long _np, clmpz_srcptr _q, const long _nprimes, clmpz_t *_p_hat, __global clmp_uint64 *_p_hat_inv_mod_p, clmpz_t *_p_prod, clmpz_t * _p_prod_h, __global clmp_uint64 *_p_vec, __global clmp_uint64 *_p_r_vec, const long _k_bar_d, const long _N, const long _log_N);*/
+
+#endif
